@@ -20,5 +20,19 @@ const getAllProjectServices = async () => {
     throw error;
   }
 };
-
-module.exports = { createProjectServices, getAllProjectServices };
+const getParticularProjectService = async (id) => {
+  try {
+    console.log("services paricular Project!!!!!!!!!!!!!!!!");
+    const getParticularProjectServicesData =
+      await project_repo.getParticularProjectRepo(id);
+    return getParticularProjectServicesData;
+  } catch (error) {
+    console.log("Something went in Fetch particular Data Project service");
+    throw { error };
+  }
+};
+module.exports = {
+  createProjectServices,
+  getAllProjectServices,
+  getParticularProjectService,
+};

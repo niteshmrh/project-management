@@ -42,4 +42,30 @@ const getAllProjectController = async (req, res) => {
     });
   }
 };
-module.exports = { createProjectController, getAllProjectController };
+
+const getParticularProjectController = async (req, res) => {
+  try {
+    const getParticularProjectControllerData =
+      await project_ser.getParticularProjectService(req.params.id);
+    return res.status(201).json({
+      data: getParticularProjectControllerData,
+      success: true,
+      message: "successfully fetched particular project",
+      err: {},
+    });
+  } catch (error) {
+    console.log("something went wrong in particular project-controller");
+    return res.status(500).json({
+      data: {},
+      success: false,
+      message: "Not able to fetch the particular project",
+      err: error,
+    });
+  }
+};
+
+module.exports = {
+  createProjectController,
+  getAllProjectController,
+  getParticularProjectController,
+};

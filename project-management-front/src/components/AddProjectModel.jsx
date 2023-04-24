@@ -24,7 +24,7 @@ function AddProjectModel(props) {
 
       if (response.status === 201) {
         setClients(response.data.data);
-        console.log(response);
+        console.log(response.data.data);
       } else {
         alert("Something went wrong!!!");
       }

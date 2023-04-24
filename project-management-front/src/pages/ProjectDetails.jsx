@@ -13,7 +13,7 @@ function ProjectDetails(props) {
   const [clients, setClients] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { id } = useParams();
-
+  const [particularClient, setParticularClient] = useState({});
   // const [updateData, setUpdateData] = useState({});
 
   // const handleChange = (e) => {
@@ -64,18 +64,28 @@ function ProjectDetails(props) {
   }, []);
 
   useEffect(() => {
-    if (project) {
-      setProjectName(project?.attributes?.project_name);
-      setDescription(project?.attributes?.description);
-      setStatus(project?.attributes?.status);
-      setClient(project?.attributes?.clients?.data[0]?.id);
+    if (project && clients) {
+      setProjectName(project?.Name);
+      setDescription(project?.Description);
+      setStatus(project?.Status);
+      setClient(project?.clients?.data[0]?.id);
+      // console.log("clients--______________", clients[0].id);
+      for (let i = 0; i < clients.length; i++) {
+        if (project.Client == clients[i].id) {
+          setParticularClient(clients[i]);
+          console.log("particular client---", clients[i]);
+          break;
+        }
+      }
     }
-  }, [project]);
+  }, [project, clients]);
+
+  // `http://3.108.40.132:1337/api/projects/${id}?populate=*`,
 
   const fetchProjectApi = async () => {
     try {
       const response = await axios.get(
-        `http://3.108.40.132:1337/api/projects/${id}?populate=*`,
+        `http://localhost:4000/api/v1/particularProject/${id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -83,8 +93,9 @@ function ProjectDetails(props) {
         }
       );
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         setProject(response.data.data);
+        console.log("project-----", response.data.data);
         setIsLoading(false);
       } else {
         alert("Something went wrong!!!");
@@ -96,15 +107,18 @@ function ProjectDetails(props) {
 
   const fetchClientApi = async () => {
     try {
-      const response = await axios.get("http://3.108.40.132:1337/api/clients", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.get(
+        "http://localhost:4000/api/v1/allClients",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         setClients(response.data.data);
-        console.log(response);
+        console.log("client in client api", response.data.data);
       } else {
         alert("Something went wrong!!!");
       }
@@ -127,7 +141,7 @@ function ProjectDetails(props) {
         }
       );
 
-      console.log("delete project-----", response);
+      // console.log("delete project-----", response);
 
       if (response.status === 200) {
         window.location = "/";
@@ -153,12 +167,10 @@ function ProjectDetails(props) {
       const response = await axios.put(
         "http://3.108.40.132:1337/api/projects/" + id,
         {
-          data: {
-            project_name: projectName,
-            description: description,
-            status: status,
-            clients: client,
-          },
+          Name: projectName,
+          Description: description,
+          Status: status,
+          Client: client,
         },
         {
           headers: {
@@ -167,7 +179,7 @@ function ProjectDetails(props) {
         }
       );
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         setIsLoading(false);
         window.location = "/";
       } else {
@@ -187,8 +199,12 @@ function ProjectDetails(props) {
     );
   }
 
-  console.log(project);
+  // console.log(project);
   // console.log("----------", project.attributes.clients);
+  console.log(
+    "particulat Client down***********",
+    Object.keys(particularClient).length
+  );
 
   return (
     <div className="py-5">
@@ -207,12 +223,12 @@ function ProjectDetails(props) {
                 </NavLink>
               </div>
               <div>
-                <h3>{project?.attributes?.project_name}</h3>
-                <p className="mb-4">{project?.attributes?.description}</p>
+                <h3>{project?.Name}</h3>
+                <p className="mb-4">{project?.Description}</p>
                 <p className="fw-bold mb-0">Project Status:</p>
-                <p>{project?.attributes?.status}</p>
+                <p>{project?.Status}</p>
               </div>
-              {project.attributes.clients.data.length > 0 ? (
+              {Object.keys(particularClient).length > 0 ? (
                 <div className="mt-5">
                   <h5 className="mb-3">Client Information</h5>
                   <ul className="list-group">
@@ -220,28 +236,19 @@ function ProjectDetails(props) {
                       <AccountCircleIcon
                         style={{ fontSize: "22px", marginRight: "5px" }}
                       />
-                      <span>
-                        {
-                          project?.attributes?.clients?.data[0].attributes
-                            .client_name
-                        }
-                      </span>
+                      <span>{particularClient?.Name}</span>
                     </li>
                     <li className="list-group-item">
                       <MailOutlineIcon
                         style={{ fontSize: "22px", marginRight: "5px" }}
                       />
-                      <span>
-                        {project.attributes.clients.data[0].attributes.email}
-                      </span>
+                      <span>{particularClient?.Email}</span>
                     </li>
                     <li className="list-group-item">
                       <CallIcon
                         style={{ fontSize: "22px", marginRight: "5px" }}
                       />
-                      <span>
-                        {project.attributes.clients.data[0].attributes.phone}
-                      </span>
+                      <span>{particularClient?.Mobile}</span>
                     </li>
                   </ul>
                 </div>
@@ -250,7 +257,6 @@ function ProjectDetails(props) {
                   No Client Found. Please Add Client ......
                 </div>
               )}
-
               <div className="mt-5">
                 <h5 className="mb-3">Update Project</h5>
                 <form
@@ -304,13 +310,10 @@ function ProjectDetails(props) {
                       value={`${client}`}
                     >
                       <option>Select Client</option>
-                      {/* <option>Abc</option>
-                      <option>def</option> */}
-                      <option>Select Client</option>
                       {clients.length > 0 &&
                         clients?.map((client) => (
                           <option value={client.id} key={client.id}>
-                            {client.attributes.client_name}
+                            {client.Name}
                           </option>
                         ))}
                     </select>

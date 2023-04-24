@@ -20,4 +20,19 @@ const getAllProjectRepo = async () => {
     throw error;
   }
 };
-module.exports = { createProjectRepo, getAllProjectRepo };
+
+const getParticularProjectRepo = async (id) => {
+  try {
+    console.log(" get Particular respositroy project!!!!!!!!!!!!!!!!", id);
+    const getParticularProjectRepoData = await Projects.findByPk(id);
+    return getParticularProjectRepoData;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+module.exports = {
+  createProjectRepo,
+  getAllProjectRepo,
+  getParticularProjectRepo,
+};

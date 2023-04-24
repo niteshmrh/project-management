@@ -8,6 +8,10 @@ router.delete("/updateClient/:id", client_cont.updateClientController);
 router.get("/allClients", client_cont.getAllClientController);
 router.post("/createproject", project_cont.createProjectController);
 router.get("/allProjects", project_cont.getAllProjectController);
+router.get(
+  "/particularProject/:id",
+  project_cont.getParticularProjectController
+);
 router.get("/");
 // router.get("/view")
 module.exports = router;
